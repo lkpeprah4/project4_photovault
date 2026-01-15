@@ -18,3 +18,27 @@ def login():
     token = create_access_token(identity=user.id)
     return jsonify({"access_token": token}), 200
 
+
+@auth_bp.route('/register', methods=['POST'])
+def register():
+    data=request.get_json()
+    email=data.get("email")
+    password=data.get("password")
+    username=data.get("username")
+
+    if not username or not password or not email:
+        return jsonify({"message":{"ALL FIELDS ARE REQUIRED"}}),400
+    
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message":"USER ALREADY EXISTS"}),400
+    
+    hashed_password=bcrypt.generate_password_hash(password).decode("utf-8")
+    new_user=User(
+        username= username,
+        email=email,
+        password=hashed_password
+    )
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"msg": "User registered successfully"}), 201
