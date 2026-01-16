@@ -1,5 +1,7 @@
-from . import db
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from . import db
+
 
 class User(db.Model):
     __tablename__ = "users"

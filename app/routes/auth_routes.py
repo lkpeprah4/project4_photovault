@@ -5,20 +5,6 @@ from flask_jwt_extended import create_access_token
 
 auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
 
-@auth_bp.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    user = User.query.filter_by(email=email).first()
-    if not user or not bcrypt.check_password_hash(user.password, password):
-        return jsonify({"msg": "Invalid credentials"}), 401
-
-    token = create_access_token(identity=user.id)
-    return jsonify({"access_token": token}), 200
-
-
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data=request.get_json()
@@ -41,4 +27,19 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"msg": "User registered successfully", "user": {"id": new_user.id, "username": new_user.username}}), 201
+    return jsonify({"msg": "User registered successfully"}), 201
+
+@auth_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"msg": "Invalid credentials"}), 401
+
+    token = create_access_token(identity=user.id)
+    return jsonify({"access_token": token}), 200
+
+
