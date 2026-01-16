@@ -27,10 +27,10 @@ def register():
     username=data.get("username")
 
     if not username or not password or not email:
-        return jsonify({"message":{"ALL FIELDS ARE REQUIRED"}}),400
+        return jsonify({"msg":"ALL FIELDS ARE REQUIRED"}),400
     
     if User.query.filter_by(email=email).first():
-        return jsonify({"message":"USER ALREADY EXISTS"}),400
+        return jsonify({"msg":"USER ALREADY EXISTS"}),400
     
     hashed_password=bcrypt.generate_password_hash(password).decode("utf-8")
     new_user=User(
