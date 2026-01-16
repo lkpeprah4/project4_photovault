@@ -22,3 +22,12 @@ class Photo(db.Model):
     visibility=db.Column(db.String(30), default="private")
     user_id=db.Column(db.Integer(), db.ForeignKey("users.id") , nullable=False)
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
+
+
+class Album(db.Model):
+    __tablename__ = "albums"
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(120))
+    user_id = db.Column(db.Integer(), db.ForeignKey("users.id"), nullable=False)
+    photos = db.relationship("Photo", backref="album", lazy=True)
