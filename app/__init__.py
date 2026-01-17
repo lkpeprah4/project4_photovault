@@ -27,5 +27,7 @@ def create_app():
     from app.routes.add_photo import photo_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(photo_bp)
+    app.register_blueprint(album_bp)
+
 
     return app

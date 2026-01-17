@@ -22,6 +22,7 @@ class Photo(db.Model):
     visibility=db.Column(db.String(30), default="private")
     user_id=db.Column(db.Integer(), db.ForeignKey("users.id") , nullable=False)
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
+    album_id = db.Column(db.Integer(), db.ForeignKey("albums.id"), nullable=True)
 
 
 class Album(db.Model):
