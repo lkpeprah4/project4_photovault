@@ -9,7 +9,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default="user")
+    role = db.Column(db.String(20), )
     photos = db.relationship("Photo", backref="owner", lazy=True)
 
 
@@ -30,6 +30,6 @@ class Album(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(120))
-    
+
     user_id = db.Column(db.Integer(), db.ForeignKey("users.id"), nullable=False)
     photos = db.relationship("Photo", backref="album", lazy=True)

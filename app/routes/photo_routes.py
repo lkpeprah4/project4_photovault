@@ -1,5 +1,5 @@
 from flask import Blueprint,request, jsonify
-from flask_jwt_extended import jwt_required ,get_jwt_identity
+from flask_jwt_extended import jwt_required ,get_jwt_identity , get_jwt
 from cloudinary.uploader import upload
 from ..models import db, Photo, User
 from ..extensions import limiter, cache  
@@ -10,12 +10,6 @@ import cloudinary.uploader
 photo_bp=Blueprint("photo_bp", __name__ ,url_prefix="/photos")
 
 #/photos/addphoto
-
-cloudinary.config(
-    cloud_name="dzgkya7gf",
-    api_key="889925945394958",
-    api_secret="CcZd0g8trlS3uP1DW1UKnwWB_uM"
-)
 
 @photo_bp.route('/addphoto', methods=["POST"])
 @jwt_required()
@@ -128,14 +122,15 @@ def delete_photo(photo_id):
 def view_photo(photo_id):
 
     user_id = int(get_jwt_identity())
-
+    claims = get_jwt() 
+    user_role = claims.get("role")  
     photo = Photo.query.get(photo_id)
 
     if not photo:
-        return jsonify({"msg": "Photo not found"}), 404
+        return jsonify({"msg": "Photo does not exists"}), 404
 
     # If private 
-    if photo.visibility == "private" and photo.user_id != user_id:
+    if photo.visibility == "private" and photo.user_id != user_id and user_role!="admin":
         return jsonify({"msg": "This photo is private"}), 403
 
     return jsonify({
@@ -144,4 +139,4 @@ def view_photo(photo_id):
         "description": photo.description,
         "image_url": photo.image_url,
         "visibility": photo.visibility
-    }), 200
+    }), 200   

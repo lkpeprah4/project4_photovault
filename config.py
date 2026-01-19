@@ -7,6 +7,14 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret")
 
-    CLOUDINARY_CLOUD_NAME = "dzgkya7gf"
-    CLOUDINARY_API_KEY = "889925945394958"
-    CLOUDINARY_API_SECRET = "CcZd0g8trlS3uP1DW1UKnwWB_uM"
+from dotenv import load_dotenv
+import os
+import cloudinary
+
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)

@@ -13,7 +13,7 @@ def register():
     username=data.get("username")
     role=data.get("role")
 
-    if not username or not password or not email:
+    if not username or not password or not email or not role:
         return jsonify({"msg":"ALL FIELDS ARE REQUIRED"}),400
     
     if User.query.filter_by(email=email).first():
@@ -36,12 +36,18 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+    role= data.get("role")
 
     user = User.query.filter_by(email=email).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials"}), 401
 
-    token = create_access_token(identity=str(user.id))
+    token = create_access_token(
+        identity=str(user.id),
+       additional_claims={"role": user.role} 
+    )
+    
+
     return jsonify({"access_token": token}), 200
 
 

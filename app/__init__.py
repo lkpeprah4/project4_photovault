@@ -22,11 +22,11 @@ def create_app():
     app.register_blueprint(photo_bp)
     app.register_blueprint(album_bp)
     
-        # DEBUG: print all registered routes
-    print("\n[DEBUG] Registered routes:")
-    for rule in app.url_map.iter_rules():
-        print(f"{rule} -> {rule.endpoint}")
-    print("[END DEBUG]\n")
+    #     # DEBUG: print all registered routes
+    # print("\n[DEBUG] Registered routes:")
+    # for rule in app.url_map.iter_rules():
+    #     print(f"{rule} -> {rule.endpoint}")
+    # print("[END DEBUG]\n")
 
 
     return app
