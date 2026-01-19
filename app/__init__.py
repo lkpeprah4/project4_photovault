@@ -1,38 +1,32 @@
+
+
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager
-import cloudinary
-import cloudinary.uploader
-from config import Config
-
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-jwt = JWTManager()
-
+from .extensions import db, bcrypt, jwt, limiter, cache
+ 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object("config.Config")
 
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    limiter.init_app(app)
+    cache.init_app(app)
 
-    cloudinary.config(
-        cloud_name=app.config["CLOUDINARY_CLOUD_NAME"],
-        api_key=app.config["CLOUDINARY_API_KEY"],
-        api_secret=app.config["CLOUDINARY_API_SECRET"]
-    )
+  
+    from .routes.auth_routes import auth_bp
+    from .routes.photo_routes import photo_bp
+    from .routes.albums_routes import album_bp
 
-    with app.app_context():
-        db.create_all()
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(photo_bp)
+    app.register_blueprint(album_bp)
+    
+        # DEBUG: print all registered routes
+    print("\n[DEBUG] Registered routes:")
+    for rule in app.url_map.iter_rules():
+        print(f"{rule} -> {rule.endpoint}")
+    print("[END DEBUG]\n")
 
-    from app.routes.auth_routes import auth_bp
-    from app.routes.add_photo import photo_bp
-    from app.routes.albums_routes import album_bp
-
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(photo_bp, url_prefix="/photos")
-    app.register_blueprint(album_bp, url_prefix="/albums")
 
     return app

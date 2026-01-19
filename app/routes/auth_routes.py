@@ -11,6 +11,7 @@ def register():
     email=data.get("email")
     password=data.get("password")
     username=data.get("username")
+    role=data.get("role")
 
     if not username or not password or not email:
         return jsonify({"msg":"ALL FIELDS ARE REQUIRED"}),400
@@ -22,7 +23,8 @@ def register():
     new_user=User(
         username= username,
         email=email,
-        password=hashed_password
+        password=hashed_password,
+        role=role
     )
     db.session.add(new_user)
     db.session.commit()

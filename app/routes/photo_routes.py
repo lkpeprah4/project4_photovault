@@ -2,23 +2,32 @@ from flask import Blueprint,request, jsonify
 from flask_jwt_extended import jwt_required ,get_jwt_identity
 from cloudinary.uploader import upload
 from ..models import db, Photo, User
+from ..extensions import limiter, cache  
+import cloudinary
+import cloudinary.uploader
+
 
 photo_bp=Blueprint("photo_bp", __name__ ,url_prefix="/photos")
 
 #/photos/addphoto
+
+cloudinary.config(
+    cloud_name="dzgkya7gf",
+    api_key="889925945394958",
+    api_secret="CcZd0g8trlS3uP1DW1UKnwWB_uM"
+)
+
 @photo_bp.route('/addphoto', methods=["POST"])
 @jwt_required()
+@limiter.limit("5 per minute")
 def addphoto():
- 
     title = request.form.get("title")
     description = request.form.get("description")
     visibility = request.form.get("visibility")
     image_file = request.files.get("image")
 
-    
     if not image_file:
         return jsonify({"msg": "No image file provided. Make sure you upload an image using form-data."}), 400
-
     
     missing_fields = []
     if not title:
@@ -31,21 +40,18 @@ def addphoto():
     if missing_fields:
         return jsonify({"msg": "Missing fields", "fields": missing_fields}), 400
 
-    # 3️⃣ Validate visibility
     if visibility not in ["public", "private"]:
         return jsonify({"msg": "Invalid visibility. Must be 'public' or 'private'."}), 400
 
-    # 4️⃣ Get user
     current_user_id = get_jwt_identity()
 
-    # 5️⃣ Upload image to Cloudinary
     try:
-        upload_result = upload(image_file)
+        upload_result = cloudinary.uploader.upload(image_file)
         image_url = upload_result.get("secure_url")
     except Exception as e:
-        return jsonify({"msg": "Failed to upload image", "error": str(e)}), 500
+        return jsonify({"msg": str(e)}), 500
 
-    # 6️⃣ Save photo in DB
+
     new_photo = Photo(
         title=title,
         description=description,
@@ -65,6 +71,7 @@ def addphoto():
 
 
 @photo_bp.route("/public", methods=["GET"])
+@cache.cached(timeout=60) 
 def get_public_photos():
     photos = Photo.query.filter_by(visibility="public").all()
 
@@ -81,6 +88,7 @@ def get_public_photos():
     return jsonify(result), 200
 
 @photo_bp.route("/myphotos", methods=["GET"])
+@cache.cached(timeout=30, key_prefix=lambda: f"user_{get_jwt_identity()}")
 @jwt_required()
 def my_photos():
     current_user_id = int(get_jwt_identity())
@@ -99,7 +107,7 @@ def my_photos():
     return jsonify(result), 200
 
 
-@photo_bp.route("/<int:photo_id>", methods=["DELETE"])
+@photo_bp.route("/delete/<int:photo_id>", methods=["DELETE"])
 @jwt_required()
 def delete_photo(photo_id):
     current_user_id = int(get_jwt_identity())
@@ -114,3 +122,26 @@ def delete_photo(photo_id):
     db.session.commit()
 
     return jsonify({"msg": "Photo deleted successfully"}), 200
+
+@photo_bp.route("/view/<int:photo_id>", methods=["GET"])
+@jwt_required()
+def view_photo(photo_id):
+
+    user_id = int(get_jwt_identity())
+
+    photo = Photo.query.get(photo_id)
+
+    if not photo:
+        return jsonify({"msg": "Photo not found"}), 404
+
+    # If private 
+    if photo.visibility == "private" and photo.user_id != user_id:
+        return jsonify({"msg": "This photo is private"}), 403
+
+    return jsonify({
+        "id": photo.id,
+        "title": photo.title,
+        "description": photo.description,
+        "image_url": photo.image_url,
+        "visibility": photo.visibility
+    }), 200

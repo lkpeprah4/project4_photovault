@@ -14,7 +14,7 @@ class User(db.Model):
 
 
 class Photo(db.Model):
-    __tablename__ = "photos"
+    __tablename__ = "Photos"
     id=db.Column(db.Integer(),primary_key=True)
     title=db.Column(db.String(80),nullable=False)
     description=db.Column(db.String(120))
@@ -30,5 +30,6 @@ class Album(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(120))
+    
     user_id = db.Column(db.Integer(), db.ForeignKey("users.id"), nullable=False)
     photos = db.relationship("Photo", backref="album", lazy=True)
