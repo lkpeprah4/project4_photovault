@@ -98,3 +98,21 @@ def remove_photo_from_album(album_id, photo_id):
     db.session.commit()
 
     return jsonify({"msg": "Photo removed from album"}), 200
+
+
+
+# REMOVE PHOTO FROM ALBUM
+@album_bp.route("/<int:album_id>/remove-photo/<int:photo_id>", methods=["DELETE"])
+@jwt_required()
+def remove_photo_from_album(album_id, photo_id):
+    user_id = int(get_jwt_identity())
+    album = Album.query.get_or_404(album_id)
+    photo = Photo.query.get_or_404(photo_id)
+
+    if album.user_id != user_id or photo.user_id != user_id:
+        return jsonify({"msg": "Not authorized"}), 403
+    
+    photo.album_id = None
+    db.session.commit()
+
+    return jsonify({"msg": "Photo removed from album"}), 200
