@@ -13,7 +13,7 @@ def create_app():
     limiter.init_app(app)
     cache.init_app(app)
 
-    
+    cache
 
   
     from .routes.auth_routes import auth_bp
