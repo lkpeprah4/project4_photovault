@@ -13,7 +13,7 @@ def create_app():
     limiter.init_app(app)
     cache.init_app(app)
     
-
+https://youtu.be/Hva8lsV2nTk?si=r_B7U3QfIfLHroX5
 
 
   
