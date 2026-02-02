@@ -12,6 +12,7 @@ def create_app():
     jwt.init_app(app)
     limiter.init_app(app)
     cache.init_app(app)
+    cache.init_app(app)
     
 
 
