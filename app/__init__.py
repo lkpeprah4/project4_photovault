@@ -13,8 +13,6 @@ def create_app():
     limiter.init_app(app)
     cache.init_app(app)
     cache.init_app(app)
-    
-
 
 
   
@@ -25,7 +23,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(photo_bp)
     app.register_blueprint(album_bp)
-
+    app.register_blueprint(album_bp)
     
     #     # DEBUG: print all registered routes
     # print("\n[DEBUG] Registered routes:")
