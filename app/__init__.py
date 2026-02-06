@@ -7,7 +7,6 @@ def create_app():
 
     db.init_app(app)
     bcrypt.init_app(app)
-    bcrypt.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
     cache.init_app(app)
